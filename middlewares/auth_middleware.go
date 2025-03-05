@@ -39,7 +39,7 @@ func ValidateToken(token string) bool {
 
 	// Si no está en caché, validar con el servicio de autenticación
 	client := &http.Client{Timeout: 5 * time.Second}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/validate", authServiceURL), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/auth/validate", authServiceURL), nil)
 	if err != nil {
 		fmt.Println("Error en la solicitud de validación:", err)
 		return false

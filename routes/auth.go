@@ -33,8 +33,8 @@ func auth(router *mux.Router, discoveryClient commonDiscovery.DiscoveryClient) {
 }
 
 func profile(router *mux.Router, discoveryClient commonDiscovery.DiscoveryClient) {
-	router.Use(middlewares.AuthMiddleware)
 	authRoutes := router.PathPrefix("/auth").Subrouter()
+	authRoutes.Use(middlewares.AuthMiddleware)
 
 	authRoutes.HandleFunc("/profiles", func(w http.ResponseWriter, r *http.Request) {
 		discovery.HandleProxyRequest(w, r, discoveryClient, McAuth, "/api/profiles")
@@ -52,23 +52,24 @@ func profile(router *mux.Router, discoveryClient commonDiscovery.DiscoveryClient
 }
 
 func company(router *mux.Router, discoveryClient commonDiscovery.DiscoveryClient) {
-	router.Use(middlewares.AuthMiddleware)
+	companyRoutes := router.PathPrefix("/companies").Subrouter()
+	companyRoutes.Use(middlewares.AuthMiddleware)
 
-	router.HandleFunc("/companies", func(w http.ResponseWriter, r *http.Request) {
+	companyRoutes.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		discovery.HandleProxyRequest(w, r, discoveryClient, McAuth, "/api/companies")
 	}).Methods("POST")
 
-	router.HandleFunc("/companies/{uuid}", func(w http.ResponseWriter, r *http.Request) {
+	companyRoutes.HandleFunc("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		discovery.HandleProxyRequest(w, r, discoveryClient, McAuth, fmt.Sprintf("/api/companies/%s", vars["uuid"]))
 	}).Methods("GET")
 
-	router.HandleFunc("/companies/{uuid}", func(w http.ResponseWriter, r *http.Request) {
+	companyRoutes.HandleFunc("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		discovery.HandleProxyRequest(w, r, discoveryClient, McAuth, fmt.Sprintf("/api/companies/%s", vars["uuid"]))
 	}).Methods("PUT")
 
-	router.HandleFunc("/companies/me", func(w http.ResponseWriter, r *http.Request) {
+	companyRoutes.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
 		discovery.HandleProxyRequest(w, r, discoveryClient, McAuth, "/api/companies/me")
 	}).Methods("GET")
 }

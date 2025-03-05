@@ -4,7 +4,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mauriciomartinezc/real-estate-api-gateway/middlewares"
 	"github.com/mauriciomartinezc/real-estate-api-gateway/routes"
-	"github.com/mauriciomartinezc/real-estate-api-gateway/utils"
 	"github.com/mauriciomartinezc/real-estate-mc-common/config"
 	"github.com/mauriciomartinezc/real-estate-mc-common/discovery"
 	"github.com/mauriciomartinezc/real-estate-mc-common/discovery/consul"
@@ -55,14 +54,6 @@ func initializeRouter() *mux.Router {
 	// Attach middlewares
 	router.Use(middlewares.SecurityHeadersMiddleware)
 	router.Use(middlewares.RateLimiterMiddleware(rateLimit, 100))
-
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		utils.WriteResponse(w, http.StatusOK, true, "Success", nil)
-	}).Methods("GET")
-
-	router.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		utils.WriteResponse(w, http.StatusOK, true, "Success", nil)
-	}).Methods("GET")
 
 	return router
 }
