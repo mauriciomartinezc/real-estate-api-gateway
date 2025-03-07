@@ -20,14 +20,12 @@ func AuthRoutes(router *mux.Router, lb *loadbalancer.DynamicLoadBalancer) {
 
 	protected.HandleFunc("/auth/resetPassword", discovery.ProxyHandler(lb)).Methods("POST")
 
-	profiles := protected.PathPrefix("/profiles").Subrouter()
-	profiles.HandleFunc("/", discovery.ProxyHandler(lb)).Methods("POST")
-	profiles.HandleFunc("/", discovery.ProxyHandler(lb)).Methods("GET")
-	profiles.HandleFunc("/{uuid}", discovery.ProxyHandler(lb)).Methods("PUT")
+	protected.HandleFunc("/profiles", discovery.ProxyHandler(lb)).Methods("POST")
+	protected.HandleFunc("/profiles", discovery.ProxyHandler(lb)).Methods("GET")
+	protected.HandleFunc("/{uuid}", discovery.ProxyHandler(lb)).Methods("PUT")
 
-	companies := protected.PathPrefix("/companies").Subrouter()
-	companies.HandleFunc("/", discovery.ProxyHandler(lb)).Methods("POST")
-	companies.HandleFunc("/{uuid}", discovery.ProxyHandler(lb)).Methods("GET")
-	companies.HandleFunc("/{uuid}", discovery.ProxyHandler(lb)).Methods("PUT")
-	companies.HandleFunc("/me", discovery.ProxyHandler(lb)).Methods("GET")
+	protected.HandleFunc("/companies", discovery.ProxyHandler(lb)).Methods("POST")
+	protected.HandleFunc("/companies/{uuid}", discovery.ProxyHandler(lb)).Methods("GET")
+	protected.HandleFunc("/companies/{uuid}", discovery.ProxyHandler(lb)).Methods("PUT")
+	protected.HandleFunc("/companies/me", discovery.ProxyHandler(lb)).Methods("GET")
 }
