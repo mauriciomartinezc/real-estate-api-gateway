@@ -2,11 +2,12 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/mauriciomartinezc/real-estate-api-gateway/loadbalancer"
 	"github.com/mauriciomartinezc/real-estate-api-gateway/middlewares"
 	"github.com/mauriciomartinezc/real-estate-api-gateway/routes"
+	"github.com/mauriciomartinezc/real-estate-api-gateway/services"
+	"github.com/mauriciomartinezc/real-estate-api-gateway/utils"
 	"github.com/mauriciomartinezc/real-estate-mc-common/config"
-	"github.com/mauriciomartinezc/real-estate-mc-common/discovery"
-	"github.com/mauriciomartinezc/real-estate-mc-common/discovery/consul"
 	"log"
 	"net/http"
 	"os"
@@ -22,10 +23,10 @@ func main() {
 
 	router := initializeRouter()
 
-	discoveryClient := initializeDiscoveryClient()
+	loadBalancers := initLoadBalancers()
 
 	// Initialize API routes
-	routes.InitRoutes(router, discoveryClient)
+	routes.InitRoutes(router, loadBalancers)
 
 	log.Printf("API Gateway running on port %s", port)
 	if err := http.ListenAndServe(":"+port, router); err != nil {
@@ -58,6 +59,16 @@ func initializeRouter() *mux.Router {
 	return router
 }
 
-func initializeDiscoveryClient() discovery.DiscoveryClient {
-	return consul.NewConsultApi()
+func initLoadBalancers() map[string]*loadbalancer.DynamicLoadBalancer {
+	defaultEndpoints := utils.GetDefaultEndpointLb()
+
+	commonLb := loadbalancer.NewDynamicLoadBalancer("COMMON_SERVICE_DNS", defaultEndpoints[services.McCommon])
+	authLB := loadbalancer.NewDynamicLoadBalancer("AUTH_SERVICE_DNS", defaultEndpoints[services.McAuth])
+
+	loadBalancers := map[string]*loadbalancer.DynamicLoadBalancer{
+		services.McCommon: commonLb,
+		services.McAuth:   authLB,
+	}
+
+	return loadBalancers
 }
